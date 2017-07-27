@@ -1,0 +1,145 @@
+
+第01章：前言、灵活的JavaScript语言
+
+	一、前言部分
+		1、设计模式，是工作经验的结晶。
+		2、解决问题-->分解问题-->使用模式(模板)去解决每一个小问题。
+
+	二、灵活的JavaScript语言
+
+		1、不可忽视的全局变量
+			<script>
+				// 以下两种方式创建的函数，都是全局变量，不可轻视
+				function checkName(){ };
+				var checkEmail = function(){ };
+			</script>
+
+		2、全局变量的缺陷
+			过多的全局变量不仅耗费内存，也不利团队协作，原因是别人可能写出同名函数以发生覆盖。
+
+		3、用对象收编全局变量 --> 减小全局变量的使用
+			<script>
+				// 用JSON对象收编全局变量
+				var CheckObject = {
+					checkName: function(){ },
+					checkEmail: function(){ },
+					checkPassword: function(){ }
+					// JSON中，当前对象 this --> CheckObject
+				};
+
+				// 用函数对象收编全局变量（注：js函数也是对象）
+				var CheckObject1 = function(){ }; 
+				CheckObject1.checkName = function(){ }; // 当使用new CheckObject1()创建对象时，以下3个方法不会被继承。
+				CheckObject1.checkEmail = function(){ };
+				CheckObject1.checkPassword = function(){ };
+
+				// 用函数对象收编全局变量 的 另一种方式
+				var CheckObject2 = function(){
+					return {	// 返回一个JSON对象
+						checkName: function(){ },
+						checkEmail: function(){ },
+						checkPassword: function(){ }
+					};
+				};
+
+				// 继续迭代
+				var CheckObject3 = function(){
+					this.checkName = function(){ }; // 要使用以下3个方法，得先 new CheckObject3()创建对象。
+					this.checkEmail = function(){ };
+					this.checkPassword = function(){ };
+				};
+
+				// 继续迭代：使用原型对象收编全局变量
+				var CheckObject4 = function(){ };
+				CheckObject4.prototype.checkName = function(){};
+				CheckObject4.prototype.checkEmail = function(){};
+				CheckObject4.prototype.checkPassword = function(){};
+
+				// 另一种 原型赋值 的方式
+				var CheckObject5 = function(){};
+				CheckObject5.prototype = {
+					checkName: function(){ },
+					checkEmail: function(){ },
+					checkPassword: function(){ }
+				}; // 注：这种方式，和上一种方式不能混搭使用，否则后续再赋值时会发生覆盖。
+
+
+				// 实现链式调用
+				var CheckObject6 = function(){};
+				CheckObject6.prototype = {
+					checkName: function(){
+						// do something
+						return this;	//返回当前对象
+					},
+					checkEmail: function(){ 
+						// do something
+						return this;	//返回当前对象
+					},
+					checkPassword: function(){ 
+						// do something
+						return this;	//返回当前对象
+					}
+				};
+				// 链式调用 演示
+				var co6 = new CheckObject6();
+				co6.checkName().checkEmail().checkPassword();  // 链式调用
+			</script>
+
+		3、prototype.js框架
+			它是一款js框架，它对js内置对象如Function、Array、Object等进行了扩展，封装了很多实用的方法。
+
+		4、函数的祖先 Function
+			<script>
+				// 在Function的原型上添加新属性
+				Function.prototype.checkTel = function(){};
+
+				// 另一种方式：封装一个向Function.prototype添加方法的函数
+				Function.prototype.addMethod = function(name,fn){
+					this[name] = fn;   // name是变量，所以只能 this[name]
+				};
+				var methods = new Function();
+				methods.addMethod('checkTel',function(){}); // 添加属性
+				methods.checkTel(); 						// 调用新添加的方法
+
+
+				// 链式添加和调用
+				Function.prototype.addMethod = function(name,fn){
+					this[name] = fn;   // name是变量，所以只能 this[name]
+					return this;
+				};
+				var methods = new Function();
+				// 链式添加
+				methods.addMethod('checkTel',function(){
+					// do something
+					return this;
+				}).addMethod('checkAge',function(){
+					// do something
+					return this;
+				}); 
+				methods.checkTel().checkAge(); //链式调用
+
+
+
+				// 再换一种方式添加方法和调用方法
+				Function.prototype.addMethod = function(name,fn){
+					this[name] = fn;   // name是变量，所以只能 this[name]
+					return this;
+				};
+				var Methods = function(){};   // 函数，也是函数对象
+				Methods.addMethod('checkTel',function(){
+					// do something
+					return this;
+				}).addMethod('checkAge',function(){
+					// do something
+					return this;
+				}); 
+				var m = new Methods();
+				m.checkTel().checkAge();
+			</script>
+
+		5、本章总结
+			js是一种灵活的语言，函数是其中的一等公民。使用js，可以编写出更多优雅的艺术代码。
+			在团队协作时，要尽量保证js代码的风格一致，避免过度挥霍js的灵活性。统一代码风格，有利于团队协作、代码维护等。
+
+
+	<!-- 本章结束 -->

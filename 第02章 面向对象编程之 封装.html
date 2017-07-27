@@ -1,0 +1,179 @@
+
+第02章 面向对象编程
+
+	1、面向对象编程，它将对象作为程序的基本单元。把程序和数据封装其中，以提高程序的重用性、灵活性和扩展性。
+
+	2、面向对象编程，就是将我们的需求抽象成一个对象，然后针对这个对象分析其特征（属性）与动作（方法）。这个对象，我们称之为类。面向对象编程思想其中有一个特点就是封装，就是把你需要的功能放在一个对象里。
+
+	3、封装
+		<script>
+			// 创建一个类：按编程习惯，类名首字母大写。(但这并不是非得这样)
+			var Book = function(id,bookname,price){
+				this.id = id;
+				this.bookname = bookname;
+				this.price = price;
+			};
+
+			// 两种设置原型对象的方法
+			Book.prototype.display = function(){};
+			// 或者
+			Book.prototype = { };
+			// 以上两种方式，不可混用。
+		</script>
+
+	4、通过this为类添加属性 和 通过prototype为类添加属性，有哪些区别？
+		1）通过prototype添加的属性，可以被继承。
+		2）通过prototype添加的属性，在new Book()创建对象时不会重复被创建。但通过this添加的属性，每次新建对象时它们都要被重新创建一次。
+
+	5、Book类、Book.prototype、book三者之间的关系：
+		BooK类 --> 通过它的prototype属性指向 --> Book.prototype构造器的原型对象
+		book对象 --> 通过它的__proto__属性指向 --> Book.prototype构造器的原型对象
+		Book.prototype构造器的原型对象 --> 通过它的constructor属性指向 --> Book类
+
+	6、通过函数作用域实现属性和方法的封装
+		<script>
+			// js是通过函数级作用域来实现类的私有变量和私有方法的
+			var Book = function(id,name,price){
+				// 私有属性，在类的外部无法被访问
+				var num = 1;
+				// 私有方法，在类的外部无法被访问
+				function checkId(){};
+
+				// 特权方法 setter / getter ，它们可以访问类的私有变量
+				this.getName = function(){};
+				this.getPrice = function(){};
+				this.setName = function(){};
+				this.setPrice = function(){};
+
+				// 对象公有属性，通过对象来访问
+				this.id = id;
+				// 对象公有方法，通过对象来访问
+				this.copy = function(){};
+
+				// 构造器，通过对象来访问
+				this.setName(name);
+				this.setPrice(price);
+			};
+		</script>
+
+	7、静态属性、静态方法 --> 只能通过类名来访问，对象不能访问
+		<script>
+			var Book = function(){};
+			// 静态公有属性，对象不能访问
+			Book.isChinese = true;
+			// 静态公有方法，对象不能访问
+			Book.resetTime = function(){
+				console.log('new time');
+			};
+			Book.prototype = {
+				// 公有属性，通过对象来访问
+				isJSBook: false,
+				// 公有方法，通过对象来访问
+				display: function(){}
+			};
+
+		</script>
+	
+	8、通过闭包来实现静态变量
+		<script>
+			// 使用闭包
+			var Book = (function(){
+				var bookNum = 0;		// 静态私有变量
+				function checkBook(){}; // 静态私有方法
+
+				// 返回构造函数
+				return function(newId, newName, newPrice){
+					var name, price; 			// 私有变量
+					function checkId(id){}; 	// 私有方法
+
+					this.getName = function(){};	// 特权方法
+					this.getPrice = function(){};
+					this.setName = function(){};
+					this.setPrice = function(){};
+
+					this.id = newId; 			// 公有属性
+					this.copy = function(){};   // 公有方法
+
+					// 闭包：内层函数使用了外层函数的私有变量，并且内层函数被返回变成了全局变量，这破坏了固有的作用域链
+					bookNum++;
+					if(bookNum >100){
+						throw new Error('我们仅出版100本书.');
+					};
+
+					this.setName(newName);		// 构造器
+					this.setPrice(newPrice);
+				}
+			})();
+
+			Book.prototype = {
+				isJSBook: false,		// 静态公有属性
+				display: function(){}	// 静态公有方法
+			};
+		</script>
+
+		<script>
+			// 使用闭包：换一种写法。
+			var Book = (function(){
+				var bookNum = 0;		// 静态私有变量
+				function checkBook(){}; // 静态私有方法
+
+				// 返回构造函数
+				function _book(newId, newName, newPrice){
+					var name, price; 			// 私有变量
+					function checkId(id){}; 	// 私有方法
+
+					this.getName = function(){};	// 特权方法
+					this.getPrice = function(){};
+					this.setName = function(){};
+					this.setPrice = function(){};
+
+					this.id = newId; 			// 公有属性
+					this.copy = function(){};   // 公有方法
+
+					// 闭包：内层函数使用了外层函数的私有变量，并且内层函数被返回变成了全局变量，这破坏了固有的作用域链
+					bookNum++;
+					if(bookNum >100){
+						throw new Error('我们仅出版100本书.');
+					};
+
+					this.setName(newName);		// 构造器
+					this.setPrice(newPrice);
+				};
+				_book.prototype = {
+					isJSBook: false,		// 静态公有属性
+					display: function(){}	// 静态公有方法
+				};
+
+				return _book;  // 返回这个使用了父级函数的私有变量的函数，闭包即发生了。
+
+				// _book这个函数，即是构造器函数，也是闭包。
+			})();
+		</script>
+
+
+	9、如何避免在创建对象时漏写 new 的错误？
+		<script>
+			var Book = function(title, time, type){
+				if(this instanceof Book){
+					this.title = title;
+					this.time = time;
+					this.type = type;
+				}else{
+					return new Book(title, time, type);
+				};
+			};
+
+			// 测试
+			var book = Book('js', '2014', 'china');
+			// 此时，即使漏写 new ，仍然可以正确地创建 book对象。
+		</script> 
+
+	10、总结
+		要学会 私有属性、私有方法、特权方法、共有属性、共有方法 的实现方法。
+		要区分 静态属性、静态方法、静态类方法、静态类属性 等。
+
+
+		构造器函数(类)的属性可以分为3个部分：
+		1）第一部分是在构造函数内部的，它们可供实例化对象来复制使用、直接访问。
+		2）第二部分是在构造函数外部的，它们必须通过类名来调用，实例化对象不能访问。
+		3）第三部分是在构造函数的原型中的，实例化对象可以通过原型链间接地访问，这些属性是可继承的，是所有实例化对象共用的。

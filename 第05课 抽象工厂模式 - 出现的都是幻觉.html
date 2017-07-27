@@ -1,0 +1,180 @@
+
+第05章 抽象工厂模式 - 出现的都是幻觉
+
+	一、定义
+		抽象工厂模式：通过对类的工厂抽象，使其业务用于对产品类簇的创建，而不负责创建某一类产品的实例。
+
+	二、抽象类
+		抽象类是一种只声明但不能使用的类。当你使用它时就会报错。我们可以手动抛出异常来模拟抽象类。
+		抽象类在继承上很有用，它定义了该类所必备的方法，并可以在子类中进行重写。
+
+	<script>
+		// 抽象类
+		var Car = function(){};
+		Car.prototype = {
+			getPrice: function(){
+				return new Error('抽象方法不能调用');
+			},
+			getSpeed: function(){
+				return new Error('抽象方法不能调用');
+			}
+		};
+	</script>
+
+	三、抽象工厂模式
+		抽象工厂类中，只是显性地定义了一些功能，但没有具体实现。我们用它作为父类，从而创建一些子类。
+
+		<script>
+			// 抽象工厂模式
+			var VehicleFactory = function(subType, supType){
+				// 判断抽象工厂中是否有这个抽象类，如果有就实现对它的继承
+				if(typeof VehicleFactory[supType] === 'function'){
+					// 缓存类、临时容器
+					function F(){};
+					// 继承父类的属性和方法
+					F.prototype = new VehicleFactory[supType]();
+					// 重写子类的原型对象
+					subType.prototype = new F();
+					// 重置子类的构造器属性
+					subType.prototype.constructor = subType;
+				}else{
+					// 不存在该抽象类时，手动抛出异常
+					throw new Error('不能创建该抽象类');
+				};
+			};
+
+			// 小汽车抽象类
+			VehicleFactory.Car = function(){
+				this.type = 'car';
+			};
+			VehicleFactory.Car.prototype = {
+				getPrice: function(){
+					return new Error('抽象方法不能调用');
+				},
+				getSpeed: function(){
+					return new Error('抽象方法不能调用');
+				}
+			};
+
+			// 公交车抽象类
+			VehicleFactory.Bus = function(){
+				this.type = 'bus';
+			};
+			VehicleFactory.Bus.prototype = {
+				getPrice: function(){
+					return new Error('抽象方法不能调用');
+				},
+				getPassengerNum: function(){
+					return new Error('抽象方法不能调用');
+				}
+			};
+
+			// 货车抽象类
+			VehicleFactory.Truck = function(){
+				this.type = 'truck';
+			};
+			VehicleFactory.Truck.prototype = {
+				getPrice: function(){
+					return new Error('抽象方法不能调用');
+				},
+				getTrainload: function(){
+					return new Error('抽象方法不能调用');
+				}
+			};
+			// 抽象工厂模式 结束
+
+
+
+
+			// 使用上述定义的抽象工厂创建非抽象子类
+
+			// 宝马汽车类 --> 它属于小汽车，应该继承 VehicleFactory.Car
+			var BMW = function(price,speed){
+				this.price = price;
+				this.speed = speed;
+			};
+			// 使用抽象工厂，让BMW继承Car抽象类
+			VehicleFactory(BMW, 'Car');
+			BMW.prototype.getPrice = function(){	// 重写抽象父类的抽象方法
+				return this.price;
+			};
+			BMW.prototype.getSpeed = function(){	
+				return this.speed;
+			};
+
+			// 兰博基尼汽车类 --> 它属于小汽车，应该继承 VehicleFactory.Car
+			var Lamborghini = function(price,speed){
+				this.price = price;
+				this.speed = speed;
+			};
+			// 使用抽象工厂，让Lamborghini继承Car抽象类
+			VehicleFactory(Lamborghini, 'Car');
+			Lamborghini.prototype.getPrice = function(){	// 重写抽象父类的抽象方法
+				return this.price;
+			};
+			Lamborghini.prototype.getSpeed = function(){
+				return this.speed;
+			};
+
+
+			// 宇通公交车类 --> 它属于公交车，应该继承 VehicleFactory.Bus
+			var YuTong = function(price, passenger){
+				this.price = price;
+				this.passenger = passenger;
+			};
+			VehicleFactory(YuTong, 'Bus');  // 使用抽象工厂，实现继承
+			YuTong.prototype.getPrice = function(){	// 重写抽象父类的抽象方法
+				return this.price;
+			};
+			YuTong.prototype.getPassengerNum = function(){
+				return this.passenger;
+			};
+
+
+			// 奔驰货车类 --> 它属于货车，应该继承 VehicleFactory.Truck
+			var BenzTruck = function(price,trainLoad){
+				this.price = price;
+				this.trainLoad = trainLoad;
+			};
+			VehicleFactory(BenzTruck, 'Truck');  // 使用抽象工厂，实现对抽象类的继承
+			BenzTruck.prototype.getPrice = function(){	// 重写抽象父类的抽象方法
+				return this.price;
+			};
+			BenzTruck.prototype.getTrainload = function(){
+				return this.trainLoad;
+			};
+
+
+			// 测试
+			var bmw = new BMW('100万','100km每小时');
+			console.log(bmw.type);
+			console.log(bmw.getPrice());
+			console.log(bmw.getSpeed());
+
+			var lam = new Lamborghini('500万','200km每小时');
+			console.log(lam.type);
+			console.log(lam.getPrice());
+			console.log(lam.getSpeed());
+
+			var yut = new YuTong('30万','高性能引擎');
+			console.log(yut.type);
+			console.log(yut.getPrice());
+			console.log(yut.getPassengerNum());
+
+			var ben = new BenzTruck('50万','1000吨');
+			console.log(ben.type);
+			console.log(ben.getPrice());
+			console.log(ben.getTrainload());
+			var ben2 = new BenzTruck('55万','2000吨');
+			console.log(ben2.type);
+			console.log(ben2.getPrice());
+			console.log(ben2.getTrainload()); 
+		</script>
+
+	四、总结
+		抽象工厂模式，它创建的结果不是一个对象，而是一个抽象的类簇，这些类簇制定了类的结构。
+
+		区分：
+		简单工厂模式：用于创建单一对象。
+		工厂方法模式：用于创建多类对象。
+		抽象工厂模式：用于创建抽象类簇。

@@ -1,0 +1,123 @@
+
+第02章 面向对象编程之 多继承 多态
+
+	1、多继承
+		做法：使用浅复制，以获取多个对象的属性，从而实现多继承。
+		浅复制(拷贝)：即只复制了对象中的值类型属性，而无法复制其引用类型的属性。
+		深复制(拷贝)：即把一个对象中的所有属性(包括引用类型的属性)都复制到另一对象中。
+		<script>
+			// 浅复制演示 --> 属性复制
+			var copy = function(target, source){
+				for(var pro in source){
+					target[pro] = source[pro];   // 浅复制
+				};
+				return target;  // 返回复制后的新对象
+			};
+
+			// 测试
+			var book = {
+				name: 'js',
+				alick: ['css','html']
+			};
+			var authorBook = { color:'blue' };
+
+			// 执行浅复制
+			var newAuthorBook = copy(authorBook,book);
+			console.log(newAuthorBook.name);	// js
+			console.log(newAuthorBook.color);	// blue
+		</script>
+
+		<script>
+			// 多继承实现：mix()方法，用于把多个对象的属性复制到源对象中
+			var mix = function(){
+				var i = 1;  // 从第二个对象开始复制，第一个对象是源对象
+				var len = arguments.length;  // 实参长度
+				var target = arguments[0];   // 第一个参数是源对象，用于接受复制的属性
+				var arg;					 // 缓存参数对象
+
+				// 遍历将被复制(继承)的对象
+				for( ; i<len; i++){
+					arg = arguments[i];  	 // i 从1开始
+					// 遍历并复制被继承对象中的属性 --> 浅复制
+					for(var pro in arg){
+						target[pro] = arg[pro];  
+					};
+				};
+				return target;				 // 返回目标对象
+			};
+			// 这种做法，把多个对象中的值类型属性，都复制到了目标对象target中，从而实现了多继承。
+
+			// 把 mix()绑定到Object的原型上，这样所有的对象都可以使用这个方法了。
+			Object.prototype.mix = mix;
+
+
+			// 测试
+			var obj = {};
+			var obj1 = {name:'Lucy'};
+			var obj2 = {color:'red'};
+			var obj3 = {num:23, age:10};
+
+			// 见证奇迹的时候：多继承，实现了
+			obj.mix(obj, obj1, obj2, obj3);
+			console.log(obj.age);		// 10
+			console.log(obj.color);		// red
+		</script>
+
+
+	2、多态：即同一个方法的多种调用方式。
+		js多态的实现原理：对函数传入的实参进行判断，从而实现多种调用方式。
+		多态：同一个方法，实现多种处理机制，其原理是通过判断参数个数来实现。参数个数不同，执行逻辑也不同。
+		<script>
+			// 多态
+			function add(){
+				var args = arguments;   // 获取实参
+				var len  = args.length; // 实参个数
+				switch(len){
+					case 0:
+						return 10;
+					case 1:
+						return 10+args[0];
+					case 2:
+						return 10+args[0]+args[1];
+				};
+			};
+
+			// 测试
+			console.log(add());
+			console.log(add(2));
+			console.log(add(2,100));
+		</script>
+
+		<script>
+			// 多态：换种写法，把它们封装在构造函数里
+			function Add(){
+				function zero(){
+					return 10;
+				};
+				function one(num){
+					return 10+num;
+				};
+				function two(num1,num2){
+					return 10+num1+num2;
+				};
+
+				this.add = function(){
+					var args = arguments;
+					var len  = args.length;
+					switch(len){
+						case 0:
+							return zero();
+						case 1:
+							return one(args[0]);
+						case 2:
+							return two(args[0],args[1]);
+					};
+				};
+			};
+
+			// 测试
+			var a = new Add();
+			console.log(a.add());
+			console.log(a.add(10));
+			console.log(a.add(10,10));
+		</script>

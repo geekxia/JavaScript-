@@ -1,0 +1,109 @@
+<script>
+/*	
+	第04章：工厂方法模式
+
+		一、定义
+			工厂方法模式：即通过对产品类的抽象使其创建业务主要负责用于创建多类产品的实例。
+
+		二、安全模式类
+			即使不使用new关键字，也能正确创建出该类的实例的类。
+
+			安全模式类，既可以使用new关键字来创建对象，也可以不使用new关键字来创建对象。
+
+		三、总结
+			简单工厂模式，适用于只有几个简单的基类时。
+			工厂方法模式，适用于基类数量不确定、并且基类较多时。工厂方法模式正适用于这种同时创建多类的实例。
+*/
+</script>
+
+		<script>
+			// 安全模式类
+			var Demo = function(){
+				if(!(this instanceof Demo)){
+					return new Demo();
+				};	
+				this.info = '安全类';
+			};
+			Demo.prototype = {
+				name: '安全模式类'
+			};
+
+			// 测试
+			// 安全模式类，既可以使用new关键字来创建对象，也可以不使用new关键字来创建对象。
+			var d1 = Demo();
+			console.log(d1.info);
+			console.log(d1.name)
+
+			var d2 = new Demo();
+			console.log(d2.info)
+			console.log(d2.name);
+		</script>
+
+
+		<script>
+			/*
+				工厂方法模式--> 即 安全的工厂方法模式
+			*/
+
+			// 用安全模式创建的工厂类
+			var Factory = function(type,content){
+				if(this instanceof Factory){
+					var s = new this[type+'Ads'](content); // 关键点
+					return s;
+				}else{
+					return new Factory(type,content);
+				};
+			};
+
+			// 工厂原型中设置创建所有类型数据对象的基类
+			Factory.prototype = {
+				JavaAds: function(content){
+					this.content = content;
+					(function(content){		//自执行的业务逻辑
+						console.log(content);
+					})(content);
+				},
+				JavaScriptAds: function(content){
+					this.content = content;
+					(function(content){
+						console.log(content);
+					})(content);
+				},
+				UIAds: function(content){
+					this.content = content;
+					(function(content){
+						console.log(content);
+					})(content);
+				},
+				PhpAds: function(content){
+					this.content = content;
+					(function(content){
+						console.log(content);
+					})(content);
+				},
+				PythonAds: function(content){
+					this.content = content;
+					(function(content){
+						console.log(content);
+					})(content);
+				}
+			};
+
+
+			// 测试
+
+			// 广告数据源
+			var data = [
+				{type:'JavaScript',content:'我是javascript广告2'},
+				{type:'Java',content:'我是Java广告'},
+				{type:'Php',content:'我是Php广告'},
+				{type:'UI',content:'我是UI广告'},
+				{type:'Python',content:'我是Python广告'},
+				{type:'JavaScript',content:'我是javascript广告2'}
+			];
+			// 一键处理广告
+			for(var i=data.length-1; i>=0; i--){
+				Factory(data[i].type, data[i].content);		 // 不加new，可以创建对象
+				new Factory(data[i].type, data[i].content);  // 加new，也可以创建对象
+			};
+		</script>

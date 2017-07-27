@@ -1,0 +1,190 @@
+
+第03章 简单工厂模式
+
+	一、定义
+		简单工厂模式，又叫静态工厂方法。即由一个工厂对象来决定创建某一种产品对象类的实例。主要用来创建同一类的对象。
+
+	二、需求-->场景引入
+		实现一个登陆/注册模型，包含LoginAlert / LogigConfirm / LoginPrompt等。
+
+	三、实例1：创建一个运动类的简单工厂
+		<script>
+			// 篮球基类
+			var Basketball = function(){
+				this.info = '篮球流行于美国';
+			};
+			Basketball.prototype = {
+				getMeber : function(){
+					console.log('每个队有5名球员');
+				},
+				getBallSize: function(){
+					console.log('5号球');
+				}
+			};
+
+			// 足球基类
+			var Football = function(){
+				this.info = '足球流行于巴西';
+			};
+			Football.prototype = {
+				getMeber: function(){
+					console.log('每队有11名球员');
+				},
+				getBallSize: function(){
+					console.log('7号球');
+				}
+			};
+
+			// 网球基类
+			var Tennis = function(){
+				this.info = '网球流行于法国';
+			};
+			Tennis.prototype = {
+				getMeber: function(){
+					console.log('每队只有1名球员');
+				},
+				getBallSize: function(){
+					console.log('11号球');
+				}
+			};
+
+			// 简单工厂模式：‘运动工厂’，它会帮你找到篮球、足球和网球等
+			var SportFactory = function(name){
+				switch(name){
+					case 'NBA':
+						return new Basketball();
+					case 'worldCup':
+						return new Football();
+					case 'FrenchOpen':
+						return new Tennis();
+				};
+			};
+
+
+			// 测试
+			var football = SportFactory('worldCup');
+			console.log(football);
+			console.log(football.info);
+			console.log(football.getBallSize());
+		</script>
+
+	四、实例2：创建一个弹框模块
+		<script>
+			// 警告框基类
+			function LogAlert(){ };
+			LogAlert.prototype = {
+				doAlert: function(){
+					alert('请更新你的浏览器.');
+					return this;
+				},
+				logAlert: function(){
+					console.log('请更新你的浏览器.');
+					return this;
+				}
+			};
+
+			// 确认框基类
+			function LogConfirm(){ };
+			LogConfirm.prototype = {
+				doConfirm: function(){
+					var res = confirm('你确定要删除这个文件吗？');
+					if(res){
+						console.log('你选择的是 确认');
+					}else{
+						console.log('你选择的是 取消');
+					};
+				}
+			};
+
+			// 提示框基类
+			function LogPrompt(){ };
+			LogPrompt.prototype = {
+				doPrompt: function(){
+					var user = prompt('请输入你的用户名，并且以非数字开头：');
+					console.log(user);
+				}				
+			};
+
+
+			// 实现弹框的简单工厂
+			var PopFactory = function(name){
+				switch(name){
+					case 'alert':
+						return new LogAlert();
+					case 'confirm':
+						return new LogConfirm();
+					case 'prompt':
+						return new LogPrompt();
+				};
+			};
+
+			// 测试
+			var alertbox = PopFactory('alert');
+			alertbox.doAlert().logAlert();
+
+			var promptbox = PopFactory('prompt');
+			promptbox.doPrompt();
+
+			var confirmbox = PopFactory('confirm');
+			confirmbox.doConfirm();
+		</script>
+
+
+		<script>
+			// 弹框模块-->简单工厂-->另一种写法
+			function createPop(type,text){
+
+				// 创建新对象
+				var obj = new Object();
+
+				// 所有基类共有的属性和方法
+				obj.text = text; //弹框中的文本
+				obj.show = function(){};
+
+				// 基类特有的特有的属性和方法，分别设置
+				if(type == 'alert'){
+					// 警告框特有的属性和方法
+					obj.logName = function(){
+						console.log('alert-box');
+						return this;
+					};
+					obj.alertT = function(){
+						alert(this.text);
+						return this;
+					};
+
+				};
+				if(type == 'confirm'){
+					// 确认框特有的属性方法
+					obj.flag = function(){
+						var res = confirm(obj.text);
+						return res;
+					};
+				};
+				if(type == 'prompt'){
+					// 提示框特有的属性和方法
+					obj.result = function(){
+						var res = prompt(this.text);
+						return res;
+					};
+				};
+
+				return obj;   // 简单工厂模式：返回基类
+			};
+
+			// 测试
+			var alertbox1 = createPop('alert', '请更新你的Flash软件。。。');
+			alertbox1.alertT().logName();
+
+			var confirmbox1 = createPop('confirm', '你确定要成为我们的会员吗？');
+			console.log(confirmbox1.flag());
+
+			var promptbox1 = createPop('prompt','请输入你的密码：');
+			console.log(promptbox1.result());
+		</script>
+
+
+	五、小结
+		简单工厂模式：用于把作用相似的一系列类和模块进行封装，根据需求返回开发者想要的基类实例。
+		简单工厂模式的使用场合，限制在创建单一对象时。
+		通过简单工厂模式来创建一些对象，可以让这些对象共用一些资源，而又能拥有一些私有资源。

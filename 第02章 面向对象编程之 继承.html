@@ -1,0 +1,185 @@
+
+第02章 面向对象编程
+
+	1、构造器函数(类)有3个部分：
+		1）第一部分是在构造函数内部的，它们可供实例化对象来复制使用。
+		2）第二部分是在构造函数外部的，它们必须通过类名来调用，实例化对象不能访问。
+		3）第三部分是在构造函数的原型中的，实例化对象可以通过原型链间接地访问，这些是可继承的，是所有实例化对象共用的。
+
+
+	2、类式继承
+		做法：B.prototype = new A(); 把父类的实例化对象，赋值给子类的原型。
+
+		instanceof 用于判断某个对象是否是另一个构造器的实例。
+		<script>
+			// 类式继承
+			// 声明父类
+			function A(){
+				this.a = 'a';
+			};
+			// 为父类添加共有方法
+			A.prototype.getA = function(){
+				return this.a;
+			};
+
+			// 声明子类
+			function B(){
+				this.b = 'b';
+			};
+			// 继承父类
+			B.prototype = new A();
+			// 为子类添加共有方法
+			B.prototype.getB = function(){
+				return this.b;
+			};
+
+			// 类式继承，可以继承到父类原型中的属性，也可以继承父类的this公共方法。
+
+			// 类式继承的缺点：子类对象在修改公共属性时，可能会伤害到父类的原型，从而影响到其它的新建对象。
+		</script>
+	
+	3、构造函数式继承
+		做法：在子类构造器中把父级构造函数执行一遍  A.call(this,args);
+		<script>
+			function A(id){
+				this.id = id;
+				this.books = ['js','node','html5'];
+			};
+			A.prototype.showBooks = function(){
+				console.log(this.books);
+			};
+
+			function B(id){
+				A.call(this,id);  // 构造函数式继承
+			};
+
+			// 构造函数式继承，只能继承到父类的this公共方法，不能继承到父类的原型方法。
+		</script>
+
+	4、组合继承--> 兼顾类式继承和构造函数式继承
+		<script>
+			function A(name){
+				this.name = name;
+				this.books = ['html','css'];
+			};
+			A.prototype.getName = function(){
+				return this.name;
+			};
+
+			function B(name,time){
+				A.call(this,name);	//构造函数式继承
+				this.time = time;
+			};
+			B.prototype = new A();	//类式继承
+
+			B.prototype.getTime = function(){	//扩展原型
+				return this.time;
+			};
+
+			// 这对比单一的类式继承和构造函数式继承，它好用了很多，但这仍然不是最好的继承实现方案。
+		</script>
+
+	5、原型式继承
+		做法：把类式继承进行封装 --> extend()
+		<script>
+			// 原型式继承：相当于是把类式继承进行了封装。
+			function extend(obj){
+				function F(){}; 	// 临时容器
+				F.prototype = obj;
+				return new F();
+			};
+
+			// 使用封装后的 extend() 方法来实现继承
+			var obj = {
+				name: 'html',
+				do: function(){}
+			};
+
+			// 实现继承 obj
+			var newObj1 = extend(obj);
+			var newObj2 = extend(newObj1);
+		</script>
+
+	6、寄生式继承（在原型式继承上继续优化）
+		做法：对原型式继承再次封装，即对类式继承做了两次封装。 extend() --> createObj()
+		<script>
+			function extend(obj){
+				function F(){}; 	// 临时容器
+				F.prototype = obj;
+				return new F();
+			};
+
+			var obj = {
+				name: 'html',
+				do: function(){}
+			};
+
+			// 寄生式继承 实现 
+			function createObj(obj){
+				var o = new extend(ojb); 	// 原型式继承
+				o.getName = function(){		// 原型扩展
+					return this.name;
+				};
+				return o;		// 返回扩展后的新对象
+			};
+			var newObj = createObj(obj);  // 创建了新的对象newObj，并且继承自obj.
+		</script>
+
+
+	7、寄生组合式继承(**终极继承方案**)
+		<script>
+			// 原型式继承
+			function extend(obj){
+				function F(){}; 	// 临时容器
+				F.prototype = obj;
+				return new F();
+			};
+			// 寄生式继承
+			function createObj(obj){
+				var o = new extend(ojb); 	// 原型式继承
+											// 原型扩展
+				return o;					// 返回扩展后的新对象
+			};
+			/*
+				寄生组合式继承：终极继承方案
+				参数sub 子类
+				参数sup 父类
+			*/
+			function extendProto(sub,sup){
+				var p = createObj(sup.prototype);  // 把父类的原型复制一份
+				sub.prototype = p;		// 重写子类的原型
+				p.constructor = sub;	// 重置子类原型的构造器属性
+			}
+
+			// 测试
+			function A(name){
+				this.name = name;
+				this.colors = ['red','green','blue'];
+			};
+			A.prototype.getName = function(){
+				return this.name;
+			};
+			A.prototype.getColors = function(){
+				return this.colors;
+			};
+
+			function B(name,time){
+				A.call(this,name); // 构造函数式继承
+				this.time = time;
+			};
+
+			// 继承实现
+			extendProto(B,A);  // 实现了 B 继承自 A
+
+			// 扩展子类原型
+			//在使用这种终极继承方案时，原型扩展只能通过 prototype. 一个一个地添加属性。不能直接赋值对象，否则会覆盖其继承到的原型。
+			B.prototype.getTime = function(){
+				return this.time;
+			};
+			B.prototype.handleTime = function(){
+				console.log(this.time);
+			};
+
+			//这种终极式的继承方案，不仅可以继承到父类原型中的属性，还能继承到父类的this公共属性。
+			//并且，在修改子类属性和原型时，不会影响到父类属性和原型，所以也不会对其它新建对象造成影响。
+		</script>
