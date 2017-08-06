@@ -1,0 +1,104 @@
+<script>
+  // 图片轮播 基类
+  var LoopImages = function(imgArr, container){
+    this.imagesArray = imgArr;
+    this.container = container;
+    this.createImage = function(){};  // 创建轮播图片
+    this.changeImage = function(){};  // 切换下一张图片
+  }
+
+  // 上下滑动的轮播图
+  var SlideLoopImg = function(imgArr, container){
+    LoopImages.call(this, imgArr, container);
+    this.changeImage = function(){
+      console.log('上下滑动轮播');
+    }
+  };
+
+  // 渐隐切换的轮播图
+  var FadeLoopImg = function(imgArr, container, arrow){
+    LoopImages.call(this,imgArr,container);
+    this.arrow = arrow;
+    this.changeImage = function(){
+      console.log('渐隐切换轮播');
+    }
+  }
+</script>
+
+<script>
+  // 最优解决方案
+  var LoopImages = function(imgArr,container){
+    this.imagesArray = imgArr;
+    this.container = container;
+  }
+  LoopImages.prototype = {
+    createImage: function(){
+      console.log('LoopImages');
+    },
+    changeImage: function(){
+      console.log('切换');
+    }
+  }
+
+  // 上下滑动的轮播
+  var SlideLoopImg = function(imgArr,container){
+    LoopImages.call(this,imgArr,container);
+  }
+  SlideLoopImg.prototype = new LoopImages();
+  SlideLoopImg.prototype.changeImage = function(){
+    console.log('上下切换');
+  }
+
+  // 渐隐切换的轮播
+  var FadeLoopImg = function(imgArr,container,arrow){
+    LoopImages.call(this,imgArr,container);
+  }
+  FadeLoopImg.prototype = new LoopImages();
+  FadeLoopImg.prototype.changeImage = function(){
+    console.log('渐隐切换');
+  }
+
+  // 对轮播基类的扩展
+  LoopImages.prototype.getImageLength = function(){
+    return this.imagesArray.length;
+  }
+
+  // 对渐隐轮播的扩展
+  FadeLoopImg.prototype.getContainer = function(){
+    return this.container;
+  }
+
+</script>
+
+
+<script>
+  // 原型继承
+  function prototypeExtend(){
+    var F = function(){};
+    var args = arguments;
+    for(var i=0; i<args.length; i++){
+      for(var j in args[i]){
+        F.prototype[j] = args[i][j];
+      }
+    }
+    return new F();
+  }
+
+  // 测试
+  var penguin = prototypeExtend({
+    speed: 20,
+    swim: function(){
+      console.log('游泳速度'+this.speed);
+    },
+    run: function(speed){
+      console.log('奔跑速度');
+    },
+    jump: function(){
+      console.log('跳跃动作');
+    }
+  });
+
+  penguin.swim();
+  penguin.run(10);
+  penguin.jump();
+</script>

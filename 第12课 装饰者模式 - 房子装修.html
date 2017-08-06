@@ -1,0 +1,18 @@
+<script>
+  // 装饰者模式
+  var decorator = function(input,fn){
+    var input = document.getElementById(input);
+    if(typeof input.onclick === 'function'){
+      var oldClick = input.onclick;
+      input.onclick = function(){
+        oldClick();
+        fn();
+      }
+    }else {
+      input.onclick = fn;
+    }
+  }
+
+  // 测试，为输入框架追加事件
+  decorator('tel_input',function(){});
+</script>

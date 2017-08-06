@@ -1,0 +1,67 @@
+<script>
+  // 外观模式，可以简化底层接口的复杂性，也可以解决浏览器兼容问题
+  function addEvent(dom,type,fn){
+    if(dom.addEventListener){
+      dom.addEventListener(type,fn,false);
+    }else if(dom.attachEvent){
+      dom.attachEvent('on'+type,fn);
+    }else{
+      dom['on'+type] = fn;
+    }
+  }
+
+  // 测试
+  addEvent(document, 'click', function(){
+    console.log('11');
+  });
+  addEvent(document, 'click', function(){
+    console.log('22');
+  });
+</script>
+
+
+<script>
+  // 获取事件对象
+  var getEvent = function(event){
+    return event || window.event;
+  }
+
+  // 获取事件目标
+  var getTarget = function(event){
+    var event = getEvent(event);
+    return event.target || event.srcElement;
+  }
+
+  // 阻止默认行为
+  var preventDefault = function(event){
+    var event = getEvent(event);
+    if(event.preventDefault){
+      event.preventDefault();
+    }else {
+      event.returnValue = false;  // 兼容IE
+    }
+  }
+</script>
+
+
+<script>
+  // 使用外观模式封装小型代码库
+  var A = {
+    g: function(id){
+      return document.getElementById(id);
+    },
+    css: function(id,key,val){
+      document.getElementById(id).style[key] = val;
+    },
+    attr: function(id,key,val){
+      document.getElementById(id)[key] = val;
+    },
+    html: function(id,html){
+      document.getElementById(id).innerHTML = html;
+    },
+    on: function(id,type,fn){
+      document.getElementById(id)['on'+type] = fn;
+    }
+  };
+
+</script>

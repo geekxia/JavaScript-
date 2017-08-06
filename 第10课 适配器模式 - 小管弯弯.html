@@ -1,0 +1,101 @@
+<script>
+  // 适配器模式，让A框架适配jQuery
+  window.A = A = jQuery;
+</script>
+
+<script>
+  // 适配异类框架
+  var A = A || {};
+  A.g = function(id){
+    return document.getElementById(id);
+  };
+  A.on = function(id,type,fn){
+    var dom = typeof if === 'string' ? this.g(id) : id;
+    if(dom.addEventListener){
+      dom.addEventListener(type,fn,false);
+    }else if(dom.attachEvent){
+      dom.attachEvent('on'+type,fn);
+    }else{
+      dom['on'+type] = fn;
+    }
+  }
+
+  // 测试
+  A.on(window,'load',function(){
+    A.on(document,'click',function(){
+      console.log('1111');
+    })
+  });
+</script>
+
+<script>
+  // 适配器模式，把A框架转换成jQuery
+  A.g = function(id){
+    return $(id).get(0);
+  }
+  A.on = function(id,type,fn){
+    var dom = typeof id === 'string' ? $('#'+id) : $(id);
+    dom.on(type,fn);
+  }
+</script>
+
+<script>
+  // 糟糕的写法
+  function doSomeThing(name,title,age,color,size,price){};
+
+  // 参数适配器: 用一个json对象去适配参数
+  function doSomeThing(options){
+    var _adapter = {
+      name:'清荷',
+      title:'设计师',
+      age:24,
+      color:'yellow',
+      size:100,
+      price:50.9
+    }
+    for(var i in _adapter){
+      _adapter[i] = options[i] || _adapter[i];
+    }
+  };
+
+</script>
+
+
+<script>
+  var obj = {
+    name: '',
+    title: '',
+    type: '',
+    time: ''
+  }
+  // 用函数适配数据
+  function arrToObjAdapter(arr){
+    return {
+      name: arr[0],
+      title: arr[1],
+      type: arr[2],
+      time: arr[3]
+    }
+  }
+
+  var adapterData = arrToObjAdapter(obj);
+
+  console.log(adapterData);
+</script>
+
+
+<script>
+  // 适配服务端不确定的数据
+  function ajaxAdapter(data){
+    return [data['k1'],data['k2'],data['k3'],data['k4']];
+  }
+  $.ajax({
+    url: 'data.php',
+    success: function(data,status){
+      if(data){
+        var myData = ajaxAdapter(data);
+        // do something
+      }
+    }
+  })
+</script>

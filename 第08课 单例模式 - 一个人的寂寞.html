@@ -1,0 +1,98 @@
+<script>
+  // 单例模式（提供一个独立的命名空间）
+  var Xia = {
+    g: function(id){
+      return document.getElementById(id);
+    },
+    css: function(id,key,value){
+      this.g(id).style[key] = value;
+    },
+    attr: function(id,key,value){
+      this.g(id)[key] = value;
+    },
+    html: function(id,type,fn){
+      g(id)['on'+type] = fn;
+    }
+  }
+</script>
+
+<script>
+  // 单例模式的另一个作用：模块分明
+  baidu.dom.addClass    // 添加新元素
+  baidu.dom.append      // 插入元素
+  baidu.event.stopPropagation
+  baidu.event.preventDefault
+  baidu.string.trim
+  baidu.string.encodeHTML
+</script>
+
+<script>
+  // 用单例模式，自定义模块库
+  var A = {
+    Util: {
+      util_method1: function(){},
+      util_method2: function(){}
+    },
+    Tool: {
+      tool_method1: function(){},
+      tool_method2: function(){}
+    },
+    Ajax: {
+      get: function(){},
+      post: function(){}
+    },
+    Others: {
+    }
+  }
+
+  // 使用自己的模块
+  A.Util.util_method2();
+  A.Ajax.get();
+</script>
+
+<script>
+  // 用单例模式管理静态变量
+  var Conf = (function(){
+    var conf = {
+      MAX_NUM: 1000,
+      MIN_NUM: 1,
+      COUNT: 500
+    };
+    // 返回取值对象
+    return {
+      get: function(name){
+        return conf[name] ? conf[name] : null;
+      }
+    }
+    // 没有赋值器，我们就不能修改这些变量
+  })();
+
+  // 测试
+  var count = Conf.get('COUNT');
+  console.log(count);
+</script>
+
+
+<script>
+  // 单例的延迟创建、惰性创建 
+  var LazySingle = (function(){
+    // 单例
+    var _instance = null;
+    function Single(){
+      return {
+        publicMethod: function(){},
+        publicProperty: '1.0'
+      }
+    }
+    // 单例的延迟创建
+    return function(){
+      if(!_instance){
+        _instance = Single();
+      }
+      return _instance;
+    }
+  })();
+
+  // 测试
+  console.log(LazySingle().publicProperty);
+</script>

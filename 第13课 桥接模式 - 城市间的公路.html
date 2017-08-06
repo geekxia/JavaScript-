@@ -1,0 +1,87 @@
+<script>
+  // 抽象
+  function changeColor(dom,color,bg){
+    // dom就是事件函数中的this
+    dom.style.color = color;
+    dom.style.background = bg;
+  }
+
+  document.getElementById('box').onclick = function(){
+    // this 桥梁
+    changeColor(this,'red','#ccc');
+  }
+</script>
+
+<script>
+  // 桥接模式，实现多元化对象，对抽象层和实现层进行解耦
+
+  // 运动单元
+  function Speed(x,y){
+    this.x = x;
+    this.y = y;
+  }
+  Speed.prototype.run = function(){
+    console.log('run');
+  }
+
+  // 着色单元
+  function Color(cl){
+    this.color = cl;
+  }
+  Color.prototype.draw = function(){
+    console.log('draw');
+  }
+
+  // 变形单位
+  function Shape(sp){
+    this.shape = sp;
+  }
+  Shape.prototype.change = function(){
+    console.log('change');
+  }
+
+  // 说话单元
+  function Speek(wd){
+    this.word = wd;
+  }
+  Speek.prototype.say = function(){
+    console.log('say');
+  }
+
+
+  /*创建一个球类*/
+  function Ball(x,y,c){
+    this.speed = new Speed(x,y);
+    this.color = new Color(c);
+  }
+  Ball.prototype.init = function(){
+    this.speed.run();
+    this.color.draw();
+  }
+
+  /*创建一个人物类*/
+  function People(x,y,f){
+    this.speed = new Speed(x,y);
+    this.font = new Speek(f);
+  }
+  People.prototype.init = function(){
+    this.speed.run();
+    this.font.say();
+  }
+
+  /*创建一个精灵类*/
+  function Spirite(x,y,c,s){
+    this.speed = new Speed(x,y);
+    this.color = new Color(c);
+    this.shape = new Shape(s);
+  }
+  Spirite.prototype.init = function(){
+    this.speed.run();
+    this.color.draw();
+    this.shape.change();
+  }
+
+  // 测试用例
+  var p = new People(10,12,16);
+  p.init();
+</script>
